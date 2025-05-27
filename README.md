@@ -1,0 +1,1 @@
+Simulador de Magic, para 2 jogadores, usando p5.js e websockets.
