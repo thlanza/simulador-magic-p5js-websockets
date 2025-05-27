@@ -1,21 +1,43 @@
-let socket;
+import { Deck } from './Models/Deck.js';
+import { Hand } from './Models/Hand.js';
 
-function setup() {
-  createCanvas(400, 400);
-  socket = new WebSocket(`ws://${window.location.host}`);
+let playerOneDeck, playerTwoDeck;
+let playerOneHand, playerTwoHand;
 
-  socket.onopen = () => console.log('Connection opened');
-  socket.onmessage = event => console.log(`Received: ${event.data}`);
-  socket.onclose = () => console.log('Connection closed');
-  socket.onerror = error => console.error(`Error: ${error}`);
-}
+const sketch = (p) => {
+  let socket;
 
-function draw() {
-  background(220);
-  ellipse(mouseX, mouseY, 50, 50);
+  p.preload = () => {
+    playerOneDeck = new Deck(p, 50, 580); // Bottom
+    playerTwoDeck = new Deck(p, 50, 30);  // Top
+    playerOneDeck.preload();
+    playerTwoDeck.preload();
 
-  if (mouseIsPressed && socket.readyState === WebSocket.OPEN) {
-    const data = { x: mouseX, y: mouseY };
-    socket.send(JSON.stringify(data));
+    playerOneHand = new Hand(p, playerOneDeck, 300, 580, true); // Face up
+    playerTwoHand = new Hand(p, playerTwoDeck, 300, 30, false); // Face down
+
+    playerOneHand.generateHand();
+    playerTwoHand.generateHand();
   }
-}
+  p.setup = () => {
+    p.createCanvas(1800, 700);
+    socket = new WebSocket(`ws://${window.location.host}`);
+
+    socket.onopen = () => console.log('Connection opened');
+    socket.onmessage = event => console.log(`Received: ${event.data}`);
+    socket.onclose = () => console.log('Connection closed');
+    socket.onerror = error => console.error(`Error: ${error}`);
+  };
+
+  p.draw = () => {
+    p.background(34, 139, 34);
+
+    playerOneDeck.render();
+    playerTwoDeck.render();
+
+    playerOneHand.render();
+    playerTwoHand.render();
+  };
+};
+
+new p5(sketch); // 
